@@ -70,30 +70,36 @@ func IsAdverb(word string) (bool, error) {
 }
 
 func Lookup(word string) (*Word, error) {
-	return nil, fmt.Errorf("not implemented")
+	data, err := LookupNoun(word)
+	if err == nil {
+		return data, nil
+	}
+	data, err = LookupVerb(word)
+	if err == nil {
+		return data, nil
+	}
+	data, err = LookupAdjective(word)
+	if err == nil {
+		return data, nil
+	}
+	data, err = LookupAdverb(word)
+	if err == nil {
+		return data, nil
+	}
+
+	return nil, err
 }
 
-func LookupNoun(word string) (*Word, error) {
-	return nil, fmt.Errorf("not implemented")
-}
-
-func LookupVerb(word string) (*Word, error) {
-	return nil, fmt.Errorf("not implemented")
-}
-
-func LookupAdjective(word string) (*Word, error) {
-	return nil, fmt.Errorf("not implemented")
-}
-
-func LookupAdverb(word string) (*Word, error) {
+// internal
+func lookupType(word string, file string, partOfSpeech POS) (*Word, error) {
 	word_fmt := strings.ToLower(strings.ReplaceAll(word, " ", "_"))
-	regex_string := strings.Replace(`(?im)^(\d+?) \d\d r [^\\]+? WORD .+?\| (.+)$`, "WORD", word_fmt, 1)
+	regex_string := strings.Replace(`(?im)^(\d+?) \d\d [^\\]+? WORD .+?\| (.+)$`, "WORD", word_fmt, 1)
 	regex, err := regexp.Compile(regex_string)
 	if err != nil {
 		return nil, err
 	}
 
-	b, err := os.ReadFile(adverb_file)
+	b, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +107,7 @@ func LookupAdverb(word string) (*Word, error) {
 	matching_bytes := regex.FindSubmatch(b)
 
 	if len(matching_bytes) == 0 {
-		return nil, fmt.Errorf("word not found in adverbs")
+		return nil, fmt.Errorf("word not found in " + string(partOfSpeech))
 	}
 
 	word_id, err := strconv.ParseUint(string(matching_bytes[1]), 10, 64)
@@ -112,11 +118,27 @@ func LookupAdverb(word string) (*Word, error) {
 	data := &Word{
 		ID:           uint(word_id),
 		Word:         word_fmt,
-		PartOfSpeech: POS_Adverb,
+		PartOfSpeech: partOfSpeech,
 		Definition:   string(matching_bytes[2]),
 	}
 
 	return data, nil
+}
+
+func LookupNoun(word string) (*Word, error) {
+	return lookupType(word, noun_file, POS_Noun)
+}
+
+func LookupVerb(word string) (*Word, error) {
+	return lookupType(word, verb_file, POS_Verb)
+}
+
+func LookupAdjective(word string) (*Word, error) {
+	return lookupType(word, adjective_file, POS_Adjective)
+}
+
+func LookupAdverb(word string) (*Word, error) {
+	return lookupType(word, adverb_file, POS_Adverb)
 }
 
 // Random lookup. Leave startsWith as "" for any.

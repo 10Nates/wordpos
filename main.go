@@ -54,19 +54,47 @@ func GetAdverbs(text string) (*[]Word, error) {
 // Word only
 
 func IsNoun(word string) (bool, error) {
-	return false, fmt.Errorf("not implemented")
+	_, err := LookupNoun(word)
+	if err != nil {
+		if err.Error() == "word not found in file(s)" { // irrelevant error
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }
 
 func IsVerb(word string) (bool, error) {
-	return false, fmt.Errorf("not implemented")
+	_, err := LookupVerb(word)
+	if err != nil {
+		if err.Error() == "word not found in file(s)" { // irrelevant error
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }
 
 func IsAdjective(word string) (bool, error) {
-	return false, fmt.Errorf("not implemented")
+	_, err := LookupAdjective(word)
+	if err != nil {
+		if err.Error() == "word not found in file(s)" { // irrelevant error
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }
 
 func IsAdverb(word string) (bool, error) {
-	return false, fmt.Errorf("not implemented")
+	_, err := LookupAdverb(word)
+	if err != nil {
+		if err.Error() == "word not found in file(s)" { // irrelevant error
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }
 
 func Lookup(word string) (*Word, error) {
@@ -107,7 +135,7 @@ func lookupType(word string, file string, partOfSpeech POS) (*Word, error) {
 	matching_bytes := regex.FindSubmatch(b)
 
 	if len(matching_bytes) == 0 {
-		return nil, fmt.Errorf("word not found in " + string(partOfSpeech))
+		return nil, fmt.Errorf("word not found in file(s)")
 	}
 
 	word_id, err := strconv.ParseUint(string(matching_bytes[1]), 10, 64)

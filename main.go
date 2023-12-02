@@ -18,15 +18,10 @@ const (
 	POS_Adjective POS = "adj"
 	POS_Adverb    POS = "adv"
 
-	noun_file           = "wordnet/dict/data.noun"
-	lines_in_noun_file  = 82221
-	verb_file           = "wordnet/dict/data.verb"
-	lines_in_verb_file  = 13818
-	adjective_file      = "wordnet/dict/data.adj"
-	lines_in_adj_file   = 18214
-	adverb_file         = "wordnet/dict/data.adv"
-	lines_in_adv_file   = 3654
-	lines_in_disclaimer = 29
+	noun_file      = "wordnet/dict/data.noun"
+	verb_file      = "wordnet/dict/data.verb"
+	adjective_file = "wordnet/dict/data.adj"
+	adverb_file    = "wordnet/dict/data.adv"
 )
 
 type Word struct {

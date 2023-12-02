@@ -4,6 +4,9 @@ This package intends to be a port of [moos'](https://github.com/moos) [wordpos](
 I have no relation to the individual who made the package nor the package. I simply needed the same functionality for a 
 different Go project, and I couldn't find a suitable replacement.
 
+*Note: This is not a complete port. Some wordnet data is not captured using the method I am currently using, and the definition
+is VERY crudely formatted. I may or may not change this in the future.*
+
 ## Installation
 
 This will take quite a few megabytes as it includes all of wordnet locally.

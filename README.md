@@ -1,3 +1,5 @@
+[![Go Reference](https://pkg.go.dev/badge/github.com/10Nates/wordpos.svg)](https://pkg.go.dev/github.com/10Nates/wordpos)
+
 # WordPOS for Go
 
 This package intends to be a port of [moos'](https://github.com/moos) [wordpos](https://www.npmjs.com/package/wordpos) package.

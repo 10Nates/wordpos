@@ -39,26 +39,123 @@ type POSSet struct {
 	Rest       []*Word
 }
 
-func GetPOS(text string) ([]POSSet, error) {
-	return nil, fmt.Errorf("not implemented")
+func GetPOS(text string) (*POSSet, error) {
+	nouns, err := GetNouns(text)
+	if err != nil {
+		return nil, err
+	}
+	verbs, err := GetVerbs(text)
+	if err != nil {
+		return nil, err
+	}
+	adjectives, err := GetAdjectives(text)
+	if err != nil {
+		return nil, err
+	}
+	adverbs, err := GetAdverbs(text)
+	if err != nil {
+		return nil, err
+	}
+
+	ps := &POSSet{
+		Nouns:      nouns,
+		Verbs:      verbs,
+		Adjectives: adjectives,
+		Adverbs:    adverbs,
+	}
+
+	InsertRest(text, ps)
+
+	return ps, nil
 }
 
 // Whole sentences
 
 func GetNouns(text string) ([]*Word, error) {
-	return nil, fmt.Errorf("not implemented")
+	words := strings.Split(text, " ")
+	wordsRes := make([]*Word, 0)
+
+	for i := 0; i < len(words); i++ {
+		word, err := LookupNoun(words[i])
+		if err == nil {
+			wordsRes = append(wordsRes, word)
+		} else {
+			if err.Error() != "word not found in file(s)" {
+				return nil, err
+			}
+		}
+	}
+
+	return wordsRes, nil
 }
 
 func GetVerbs(text string) ([]*Word, error) {
-	return nil, fmt.Errorf("not implemented")
+	words := strings.Split(text, " ")
+	wordsRes := make([]*Word, 0)
+
+	for i := 0; i < len(words); i++ {
+		word, err := LookupVerb(words[i])
+		if err == nil {
+			wordsRes = append(wordsRes, word)
+		} else {
+			if err.Error() != "word not found in file(s)" {
+				return nil, err
+			}
+		}
+	}
+
+	return wordsRes, nil
 }
 
 func GetAdjectives(text string) ([]*Word, error) {
-	return nil, fmt.Errorf("not implemented")
+	words := strings.Split(text, " ")
+	wordsRes := make([]*Word, 0)
+
+	for i := 0; i < len(words); i++ {
+		word, err := LookupAdjective(words[i])
+		if err == nil {
+			wordsRes = append(wordsRes, word)
+		} else {
+			if err.Error() != "word not found in file(s)" {
+				return nil, err
+			}
+		}
+	}
+
+	return wordsRes, nil
 }
 
 func GetAdverbs(text string) ([]*Word, error) {
-	return nil, fmt.Errorf("not implemented")
+	words := strings.Split(text, " ")
+	wordsRes := make([]*Word, 0)
+
+	for i := 0; i < len(words); i++ {
+		word, err := LookupAdverb(words[i])
+		if err == nil {
+			wordsRes = append(wordsRes, word)
+		} else {
+			if err.Error() != "word not found in file(s)" {
+				return nil, err
+			}
+		}
+	}
+
+	return wordsRes, nil
+}
+
+func InsertRest(text string, ps *POSSet) {
+	words := strings.Split(text, " ")
+	wordsRes := make([]*Word, 0)
+
+	// This is woefully inefficient and I hope to change this in the future
+	for i := 0; i < len(words); i++ {
+		word, err := Lookup(words[i])
+		if err != nil {
+			wordsRes = append(wordsRes, word)
+		}
+	}
+
+	ps.Rest = wordsRes
 }
 
 // Word only

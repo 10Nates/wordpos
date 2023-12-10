@@ -64,7 +64,7 @@ func GetPOS(text string) (*POSSet, error) {
 		Adverbs:    adverbs,
 	}
 
-	InsertRest(text, ps)
+	insertRest(text, ps)
 
 	return ps, nil
 }
@@ -143,7 +143,8 @@ func GetAdverbs(text string) ([]*Word, error) {
 	return wordsRes, nil
 }
 
-func InsertRest(text string, ps *POSSet) {
+// internal
+func insertRest(text string, ps *POSSet) {
 	words := strings.Split(text, " ")
 	wordsRes := make([]*Word, 0)
 

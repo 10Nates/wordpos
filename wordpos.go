@@ -1,9 +1,9 @@
 package wordpos
 
 import (
+	_ "embed"
 	"fmt"
 	"math/rand"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -17,11 +17,18 @@ const (
 	POS_Verb      POS = "v"
 	POS_Adjective POS = "adj"
 	POS_Adverb    POS = "adv"
+	POS_Other     POS = "o"
+)
 
-	noun_file      = "./wordnet/dict/data.noun"
-	verb_file      = "./wordnet/dict/data.verb"
-	adjective_file = "./wordnet/dict/data.adj"
-	adverb_file    = "./wordnet/dict/data.adv"
+var (
+	//go:embed wordnet/dict/data.noun
+	noun_file []byte
+	//go:embed wordnet/dict/data.verb
+	verb_file []byte
+	//go:embed wordnet/dict/data.adj
+	adjective_file []byte
+	//go:embed wordnet/dict/data.adv
+	adverb_file []byte
 )
 
 type Word struct {
@@ -72,7 +79,17 @@ func GetPOS(text string) (*POSSet, error) {
 // Whole sentences
 
 func GetNouns(text string) ([]*Word, error) {
-	words := strings.Split(text, " ")
+	wordsarr := strings.Split(text, " ")
+	words := []string{}
+	wordscheck := make(map[string]bool, len(wordsarr))
+	// make unique set
+	for _, word := range wordsarr {
+		if wordscheck[word] {
+			continue
+		}
+		wordscheck[word] = true
+		words = append(words, word)
+	}
 	wordsRes := make([]*Word, 0)
 
 	for i := 0; i < len(words); i++ {
@@ -90,7 +107,17 @@ func GetNouns(text string) ([]*Word, error) {
 }
 
 func GetVerbs(text string) ([]*Word, error) {
-	words := strings.Split(text, " ")
+	wordsarr := strings.Split(text, " ")
+	words := []string{}
+	wordscheck := make(map[string]bool, len(wordsarr))
+	// make unique set
+	for _, word := range wordsarr {
+		if wordscheck[word] {
+			continue
+		}
+		wordscheck[word] = true
+		words = append(words, word)
+	}
 	wordsRes := make([]*Word, 0)
 
 	for i := 0; i < len(words); i++ {
@@ -108,7 +135,17 @@ func GetVerbs(text string) ([]*Word, error) {
 }
 
 func GetAdjectives(text string) ([]*Word, error) {
-	words := strings.Split(text, " ")
+	wordsarr := strings.Split(text, " ")
+	words := []string{}
+	wordscheck := make(map[string]bool, len(wordsarr))
+	// make unique set
+	for _, word := range wordsarr {
+		if wordscheck[word] {
+			continue
+		}
+		wordscheck[word] = true
+		words = append(words, word)
+	}
 	wordsRes := make([]*Word, 0)
 
 	for i := 0; i < len(words); i++ {
@@ -126,7 +163,17 @@ func GetAdjectives(text string) ([]*Word, error) {
 }
 
 func GetAdverbs(text string) ([]*Word, error) {
-	words := strings.Split(text, " ")
+	wordsarr := strings.Split(text, " ")
+	words := []string{}
+	wordscheck := make(map[string]bool, len(wordsarr))
+	// make unique set
+	for _, word := range wordsarr {
+		if wordscheck[word] {
+			continue
+		}
+		wordscheck[word] = true
+		words = append(words, word)
+	}
 	wordsRes := make([]*Word, 0)
 
 	for i := 0; i < len(words); i++ {
@@ -145,14 +192,29 @@ func GetAdverbs(text string) ([]*Word, error) {
 
 // internal
 func insertRest(text string, ps *POSSet) {
-	words := strings.Split(text, " ")
+	wordsarr := strings.Split(strings.ToLower(text), " ")
+	words := []string{}
+	wordscheck := make(map[string]bool, len(wordsarr))
+	// make unique set
+	for _, word := range wordsarr {
+		if wordscheck[word] {
+			continue
+		}
+		wordscheck[word] = true
+		words = append(words, word)
+	}
 	wordsRes := make([]*Word, 0)
 
 	// This is woefully inefficient and I hope to change this in the future
 	for i := 0; i < len(words); i++ {
-		word, err := Lookup(words[i])
+		_, err := Lookup(words[i])
 		if err != nil {
-			wordsRes = append(wordsRes, word)
+			wordsRes = append(wordsRes, &Word{
+				ID:           0,
+				Word:         words[i],
+				PartOfSpeech: POS_Other,
+				Definition:   "",
+			})
 		}
 	}
 
@@ -227,7 +289,7 @@ func Lookup(word string) (*Word, error) {
 }
 
 // internal generic
-func lookupType(word string, file string, partOfSpeech POS) (*Word, error) {
+func lookupType(word string, file *[]byte, partOfSpeech POS) (*Word, error) {
 	word_fmt := strings.ToLower(strings.ReplaceAll(word, " ", "_"))
 	// regex: matches the correct word, then captures the ID and definition.
 	regex_string := strings.Replace(`(?im)^(\d+?) \d\d [^\\\n]+? WORD .+?\| (.+)$`, "WORD", word_fmt, 1)
@@ -236,12 +298,7 @@ func lookupType(word string, file string, partOfSpeech POS) (*Word, error) {
 		return nil, err
 	}
 
-	b, err := os.ReadFile(file)
-	if err != nil {
-		return nil, err
-	}
-
-	matching_bytes := regex.FindSubmatch(b)
+	matching_bytes := regex.FindSubmatch(*file)
 
 	if len(matching_bytes) == 0 {
 		return nil, fmt.Errorf("word not found in file(s)")
@@ -263,19 +320,19 @@ func lookupType(word string, file string, partOfSpeech POS) (*Word, error) {
 }
 
 func LookupNoun(word string) (*Word, error) {
-	return lookupType(word, noun_file, POS_Noun)
+	return lookupType(word, &noun_file, POS_Noun)
 }
 
 func LookupVerb(word string) (*Word, error) {
-	return lookupType(word, verb_file, POS_Verb)
+	return lookupType(word, &verb_file, POS_Verb)
 }
 
 func LookupAdjective(word string) (*Word, error) {
-	return lookupType(word, adjective_file, POS_Adjective)
+	return lookupType(word, &adjective_file, POS_Adjective)
 }
 
 func LookupAdverb(word string) (*Word, error) {
-	return lookupType(word, adverb_file, POS_Adverb)
+	return lookupType(word, &adverb_file, POS_Adverb)
 }
 
 // Random lookup. Leave startsWith as "" for any.
@@ -295,7 +352,7 @@ func Rand(startsWith string, count uint) ([]*Word, error) {
 }
 
 // internal generic
-func randType(file string, partOfSpeech POS, startsWith string, count uint) ([]*Word, error) {
+func randType(file *[]byte, partOfSpeech POS, startsWith string, count uint) ([]*Word, error) {
 	sw_fmt := strings.ToLower(strings.ReplaceAll(startsWith, " ", "_"))
 	regex_string := strings.Replace(`(?im)^(\d+?) \d\d . \d\d (\S+) .+?\| (.+)$`, "START", sw_fmt, 1)
 	regex, err := regexp.Compile(regex_string)
@@ -303,12 +360,7 @@ func randType(file string, partOfSpeech POS, startsWith string, count uint) ([]*
 		return nil, err
 	}
 
-	b, err := os.ReadFile(file)
-	if err != nil {
-		return nil, err
-	}
-
-	matching_bytes := regex.FindAllSubmatch(b, -1)
+	matching_bytes := regex.FindAllSubmatch(*file, -1)
 
 	if len(matching_bytes) == 0 {
 		return nil, fmt.Errorf("word not found in file(s)")
@@ -338,17 +390,17 @@ func randType(file string, partOfSpeech POS, startsWith string, count uint) ([]*
 }
 
 func RandNoun(startsWith string, count uint) ([]*Word, error) {
-	return randType(noun_file, POS_Noun, startsWith, count)
+	return randType(&noun_file, POS_Noun, startsWith, count)
 }
 
 func RandVerb(startsWith string, count uint) ([]*Word, error) {
-	return randType(verb_file, POS_Verb, startsWith, count)
+	return randType(&verb_file, POS_Verb, startsWith, count)
 }
 
 func RandAdjective(startsWith string, count uint) ([]*Word, error) {
-	return randType(adjective_file, POS_Adjective, startsWith, count)
+	return randType(&adjective_file, POS_Adjective, startsWith, count)
 }
 
 func RandAdverb(startsWith string, count uint) ([]*Word, error) {
-	return randType(adverb_file, POS_Adverb, startsWith, count)
+	return randType(&adverb_file, POS_Adverb, startsWith, count)
 }

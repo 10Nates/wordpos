@@ -1,4 +1,4 @@
-[![Go Reference](https://pkg.go.dev/badge/github.com/10Nates/wordpos.svg)](https://pkg.go.dev/github.com/10Nates/wordpos)
+[![Go Reference](https://pkg.go.dev/badge/github.com/10nates/wordpos.svg)](https://pkg.go.dev/github.com/10nates/wordpos)
 
 # WordPOS for Go
 

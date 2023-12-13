@@ -41,7 +41,7 @@ func TestIsNoun(t *testing.T) {
 }
 
 func TestIsVerb(t *testing.T) {
-	word := "jumping"
+	word := "jump"
 	isVerb, err := IsVerb(word)
 	if err != nil {
 		t.Errorf("IsNoun(%s) returned an error: %v", word, err)
@@ -73,7 +73,7 @@ func TestIsAdjective(t *testing.T) {
 }
 
 func TestIsAdverb(t *testing.T) {
-	word := "gently"
+	word := "gentle"
 	isAdv, err := IsAdjective(word)
 	if err != nil {
 		t.Errorf("IsNoun(%s) returned an error: %v", word, err)
@@ -123,7 +123,7 @@ func TestLookupNoun(t *testing.T) {
 }
 
 func TestLookupVerb(t *testing.T) {
-	word := "leaping"
+	word := "leap"
 	wordInfo, err := LookupVerb(word)
 	if err != nil {
 		t.Errorf("Lookup(%s) returned an error: %v", word, err)
@@ -173,14 +173,73 @@ func TestLookupAdverb(t *testing.T) {
 // Test random
 
 func TestRandNoun(t *testing.T) {
-	startsWith := "dog"
+	startsWith := "a"
 	count := 3
 	words, err := RandNoun(startsWith, uint(count))
 	if err != nil {
 		t.Errorf("RandNoun(%s, %d) returned an error: %v", startsWith, count, err)
 	}
 
-	t.Log(words)
+	for _, word := range words {
+		t.Log(word)
+	}
+
+	// Add assertions based on the expected results.
+	// Example:
+	if len(words) != count {
+		t.Errorf("Expected %d words, but got %d", count, len(words))
+	}
+}
+
+func TestRandAdjective(t *testing.T) {
+	startsWith := "am"
+	count := 3
+	words, err := RandAdjective(startsWith, uint(count))
+	if err != nil {
+		t.Errorf("RandNoun(%s, %d) returned an error: %v", startsWith, count, err)
+	}
+
+	for _, word := range words {
+		t.Log(word)
+	}
+
+	// Add assertions based on the expected results.
+	// Example:
+	if len(words) != count {
+		t.Errorf("Expected %d words, but got %d", count, len(words))
+	}
+}
+
+func TestRandVerb(t *testing.T) {
+	startsWith := ""
+	count := 3
+	words, err := RandVerb(startsWith, uint(count))
+	if err != nil {
+		t.Errorf("RandNoun(%s, %d) returned an error: %v", startsWith, count, err)
+	}
+
+	for _, word := range words {
+		t.Log(word)
+	}
+
+	// Add assertions based on the expected results.
+	// Example:
+	if len(words) != count {
+		t.Errorf("Expected %d words, but got %d", count, len(words))
+	}
+}
+
+func TestRandAdverb(t *testing.T) {
+	startsWith := "si"
+	count := 3
+	words, err := RandAdverb(startsWith, uint(count))
+	if err != nil {
+		t.Errorf("RandNoun(%s, %d) returned an error: %v", startsWith, count, err)
+	}
+
+	for _, word := range words {
+		t.Log(word)
+	}
 
 	// Add assertions based on the expected results.
 	// Example:

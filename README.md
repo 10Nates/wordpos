@@ -9,6 +9,12 @@ different Go project, and I couldn't find a suitable replacement.
 *Note: This is not a complete port. Some wordnet data is not captured using the method I am currently using, and the definition
 is VERY crudely formatted. I may or may not change this in the future.*
 
+## KNOWN MAJOR ISSUES:
+- VERY slow 
+- Verbs and adverb lookup only works on base forms, and random word fetch only works on base forms.
+- Does not provide you with all information compared to moos' wordpos
+- Random word fetch only fetches the first word in the dataline
+
 ## Installation
 
 This will take quite a few megabytes as it includes all of wordnet locally.

@@ -230,7 +230,7 @@ func Lookup(word string) (*Word, error) {
 func lookupType(word string, file string, partOfSpeech POS) (*Word, error) {
 	word_fmt := strings.ToLower(strings.ReplaceAll(word, " ", "_"))
 	// regex: matches the correct word, then captures the ID and definition.
-	regex_string := strings.Replace(`(?im)^(\d+?) \d\d [^\\]+? WORD .+?\| (.+)$`, "WORD", word_fmt, 1)
+	regex_string := strings.Replace(`(?im)^(\d+?) \d\d [^\\\n]+? WORD .+?\| (.+)$`, "WORD", word_fmt, 1)
 	regex, err := regexp.Compile(regex_string)
 	if err != nil {
 		return nil, err
@@ -297,7 +297,7 @@ func Rand(startsWith string, count uint) ([]*Word, error) {
 // internal generic
 func randType(file string, partOfSpeech POS, startsWith string, count uint) ([]*Word, error) {
 	sw_fmt := strings.ToLower(strings.ReplaceAll(startsWith, " ", "_"))
-	regex_string := strings.Replace(`(?im)^(\d+?) \d\d [^\\]+? START(\S+) .+?\| (.+)$`, "START", sw_fmt, 1)
+	regex_string := strings.Replace(`(?im)^(\d+?) \d\d . \d\d (\S+) .+?\| (.+)$`, "START", sw_fmt, 1)
 	regex, err := regexp.Compile(regex_string)
 	if err != nil {
 		return nil, err
@@ -328,7 +328,7 @@ func randType(file string, partOfSpeech POS, startsWith string, count uint) ([]*
 
 		data[i] = &Word{
 			ID:           uint(word_id),
-			Word:         string(matching_bytes[randomIndex][2]),
+			Word:         sw_fmt + string(matching_bytes[randomIndex][2]),
 			PartOfSpeech: partOfSpeech,
 			Definition:   string(matching_bytes[randomIndex][3]),
 		}

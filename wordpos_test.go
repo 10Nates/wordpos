@@ -247,5 +247,3 @@ func TestRandAdverb(t *testing.T) {
 		t.Errorf("Expected %d words, but got %d", count, len(words))
 	}
 }
-
-// Similar tests can be created for RandVerb, RandAdjective, and RandAdverb functions.

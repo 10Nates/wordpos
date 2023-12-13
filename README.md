@@ -21,8 +21,7 @@ This will take quite a few megabytes as it includes all of wordnet locally.
 
 ## Usage
 
-
-
+View [wordpos_test.go](./wordpos_test.go) for examples of how to use the functions.
 
 ## Legal
 

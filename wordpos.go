@@ -1,6 +1,7 @@
 package wordpos
 
 import (
+	"bytes"
 	_ "embed"
 	"fmt"
 	"math/rand"
@@ -13,11 +14,12 @@ import (
 type POS string
 
 const (
-	POS_Noun      POS = "n"
-	POS_Verb      POS = "v"
-	POS_Adjective POS = "adj"
-	POS_Adverb    POS = "adv"
-	POS_Other     POS = "o"
+	POS_Noun           POS = "n"
+	POS_Verb           POS = "v"
+	POS_Adjective      POS = "adj"
+	POS_Adverb         POS = "adv"
+	POS_Other          POS = "o"
+	file_header_length     = 29
 )
 
 var (
@@ -360,18 +362,32 @@ func randType(file *[]byte, partOfSpeech POS, startsWith string, count uint) ([]
 		return nil, err
 	}
 
-	matching_bytes := regex.FindAllSubmatch(*file, -1)
+	randomizer := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	b := *file
+	if startsWith == "" { // significant speedup compared to full-file regex for nonspecific random words
+		blist := bytes.Split(b, []byte{'\n'})
+		blistcut := [][]byte{}
+		for i := 0; i < int(count); i++ { // number of random items
+			randomIndex := randomizer.Intn(len(blist)-file_header_length) + file_header_length
+			blistcut = append(blistcut, blist[randomIndex])
+		}
+		b = bytes.Join(blistcut, []byte{'\n'})
+	}
+
+	matching_bytes := regex.FindAllSubmatch(b, -1)
 
 	if len(matching_bytes) == 0 {
 		return nil, fmt.Errorf("word not found in file(s)")
 	}
 
-	randomizer := rand.New(rand.NewSource(time.Now().UnixNano()))
-
 	data := make([]*Word, count)
 
 	for i := 0; i < int(count); i++ {
 		randomIndex := randomizer.Intn(len(matching_bytes))
+		if startsWith == "" {
+			randomIndex = i // fix double cycle
+		}
 
 		word_id, err := strconv.ParseUint(string(matching_bytes[randomIndex][1]), 10, 64)
 		if err != nil {

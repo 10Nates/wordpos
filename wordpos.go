@@ -49,8 +49,6 @@ type POSSet struct {
 }
 
 func GetPOS(text string) (*POSSet, error) {
-	// goal &{[0xc0000149c0 0xc000014a80 0xc000014b40 0xc000014c80 0xc000014e40] [0xc000015080 0xc000015140 0xc000015400] [0xc000015580 0xc000015640 0xc000015900] [0xc000015b00 0xc000015d40] [0xc000166140 0xc0001665c0]}
-	// curr &{[0xc000014b80 0xc000014c40 0xc000014d00 0xc000015000 0xc000015280] [] [0xc0000151c0] [] [0xc000014ac0 0xc000014f40]}
 	wordsarr := strings.Split(strings.ToLower(text), " ")
 	words := []string{}
 	wordscheck := make(map[string]bool, len(wordsarr))

@@ -49,31 +49,47 @@ type POSSet struct {
 }
 
 func GetPOS(text string) (*POSSet, error) {
-	nouns, err := GetNouns(text)
-	if err != nil {
-		return nil, err
-	}
-	verbs, err := GetVerbs(text)
-	if err != nil {
-		return nil, err
-	}
-	adjectives, err := GetAdjectives(text)
-	if err != nil {
-		return nil, err
-	}
-	adverbs, err := GetAdverbs(text)
-	if err != nil {
-		return nil, err
+	// goal &{[0xc0000149c0 0xc000014a80 0xc000014b40 0xc000014c80 0xc000014e40] [0xc000015080 0xc000015140 0xc000015400] [0xc000015580 0xc000015640 0xc000015900] [0xc000015b00 0xc000015d40] [0xc000166140 0xc0001665c0]}
+	// curr &{[0xc000014b80 0xc000014c40 0xc000014d00 0xc000015000 0xc000015280] [] [0xc0000151c0] [] [0xc000014ac0 0xc000014f40]}
+	wordsarr := strings.Split(strings.ToLower(text), " ")
+	words := []string{}
+	wordscheck := make(map[string]bool, len(wordsarr))
+	// make unique set
+	for _, word := range wordsarr {
+		if wordscheck[word] {
+			continue
+		}
+		wordscheck[word] = true
+		words = append(words, word)
 	}
 
-	ps := &POSSet{
-		Nouns:      nouns,
-		Verbs:      verbs,
-		Adjectives: adjectives,
-		Adverbs:    adverbs,
-	}
+	ps := &POSSet{}
 
-	insertRest(text, ps)
+	// This is woefully inefficient and I hope to change this in the future
+	for i := 0; i < len(words); i++ {
+		wordl, err := Lookup(words[i], true)
+		if err != nil {
+			ps.Rest = append(ps.Rest, &Word{
+				ID:           0,
+				Word:         words[i],
+				PartOfSpeech: POS_Other,
+				Definition:   "",
+			})
+		} else {
+			for _, word := range wordl {
+				switch word.PartOfSpeech {
+				case POS_Noun:
+					ps.Nouns = append(ps.Nouns, word)
+				case POS_Verb:
+					ps.Verbs = append(ps.Verbs, word)
+				case POS_Adjective:
+					ps.Adjectives = append(ps.Adjectives, word)
+				case POS_Adverb:
+					ps.Adverbs = append(ps.Adverbs, word)
+				}
+			}
+		}
+	}
 
 	return ps, nil
 }
@@ -192,37 +208,6 @@ func GetAdverbs(text string) ([]*Word, error) {
 	return wordsRes, nil
 }
 
-// internal
-func insertRest(text string, ps *POSSet) {
-	wordsarr := strings.Split(strings.ToLower(text), " ")
-	words := []string{}
-	wordscheck := make(map[string]bool, len(wordsarr))
-	// make unique set
-	for _, word := range wordsarr {
-		if wordscheck[word] {
-			continue
-		}
-		wordscheck[word] = true
-		words = append(words, word)
-	}
-	wordsRes := make([]*Word, 0)
-
-	// This is woefully inefficient and I hope to change this in the future
-	for i := 0; i < len(words); i++ {
-		_, err := Lookup(words[i])
-		if err != nil {
-			wordsRes = append(wordsRes, &Word{
-				ID:           0,
-				Word:         words[i],
-				PartOfSpeech: POS_Other,
-				Definition:   "",
-			})
-		}
-	}
-
-	ps.Rest = wordsRes
-}
-
 // Word only
 
 func IsNoun(word string) (bool, error) {
@@ -269,25 +254,42 @@ func IsAdverb(word string) (bool, error) {
 	return true, nil
 }
 
-func Lookup(word string) (*Word, error) {
+func Lookup(word string, checkAll bool) ([]*Word, error) {
+	words := []*Word{}
 	data, err := LookupNoun(word)
-	if err == nil {
-		return data, nil
+	if err == nil && !checkAll {
+		return []*Word{data}, nil
+	} else if err == nil {
+		words = append(words, data)
+	} else if err != nil && err.Error() != "word not found in file(s)" {
+		return nil, err
 	}
 	data, err = LookupVerb(word)
-	if err == nil {
-		return data, nil
+	if err == nil && !checkAll {
+		return []*Word{data}, nil
+	} else if err == nil {
+		words = append(words, data)
+	} else if err != nil && err.Error() != "word not found in file(s)" {
+		return nil, err
 	}
 	data, err = LookupAdjective(word)
-	if err == nil {
-		return data, nil
+	if err == nil && !checkAll {
+		return []*Word{data}, nil
+	} else if err == nil {
+		words = append(words, data)
+	} else if err != nil && err.Error() != "word not found in file(s)" {
+		return nil, err
 	}
 	data, err = LookupAdverb(word)
-	if err == nil {
-		return data, nil
+	if err == nil && !checkAll {
+		return []*Word{data}, nil
+	} else if err == nil {
+		words = append(words, data)
+	} else if err != nil && err.Error() != "word not found in file(s)" {
+		return nil, err
 	}
 
-	return nil, err
+	return words, nil
 }
 
 // internal generic

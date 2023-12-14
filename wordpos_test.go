@@ -92,12 +92,16 @@ func TestIsAdverb(t *testing.T) {
 
 func TestLookup(t *testing.T) {
 	word := "quick"
-	wordInfo, err := Lookup(word)
+	wordInfo, err := Lookup(word, true)
+
 	if err != nil {
 		t.Errorf("Lookup(%s) returned an error: %v", word, err)
 	}
 
 	t.Log(wordInfo)
+	for _, word := range wordInfo {
+		t.Log(word)
+	}
 
 	// Add assertions based on the expected results.
 	// Example:
